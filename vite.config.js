@@ -170,10 +170,15 @@ function interiorServing({ precompress }) {
 }
 
 function packageSource(output) {
-  const args = [path.join(ROOT, 'scripts', 'package_source.py'), '--output', output];
-  const result = spawnSync('python3', args, { cwd: ROOT, stdio: 'inherit' });
-  if (result.error || result.status !== 0) {
-    throw new Error(`package_source.py failed${result.error ? `: ${result.error.message}` : ` (exit ${result.status})`}`);
+  if (process.env.VERCEL || process.env.CI || !process.env.PACKAGE_SOURCE) return;
+  try {
+    const args = [path.join(ROOT, 'scripts', 'package_source.py'), '--output', output];
+    const result = spawnSync('python3', args, { cwd: ROOT, stdio: 'inherit' });
+    if (result.error || result.status !== 0) {
+      console.warn(`package_source.py skipped${result.error ? `: ${result.error.message}` : ` (exit ${result.status})`}`);
+    }
+  } catch (err) {
+    console.warn(`package_source.py skipped: ${err.message}`);
   }
 }
 

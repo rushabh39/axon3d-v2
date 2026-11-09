@@ -2,9 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { execFileSync } from 'node:child_process';
 import { Readable } from 'node:stream';
 import { finished } from 'node:stream/promises';
+import AdmZip from 'adm-zip';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const LOCK_PATH = path.join(ROOT, 'assets.lock.json');
@@ -81,7 +81,8 @@ async function main() {
   try {
     await downloadFile(lock.bundle.url, tempZip, lock.bundle.bytes, lock.bundle.sha256);
     console.log(`Extracting assets into ${PUBLIC_DIR}...`);
-    execFileSync('tar', ['-xf', tempZip, '-C', PUBLIC_DIR], { stdio: 'inherit' });
+    const zip = new AdmZip(tempZip);
+    zip.extractAllTo(PUBLIC_DIR, true);
 
     if (!verifyAssets(lock)) {
       throw new Error('Extracted assets failed verification against assets.lock.json');
