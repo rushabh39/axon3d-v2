@@ -1,0 +1,8 @@
+node_modules/
+dist/
+public/assets/
+public/source/
+.site-public/
+.release/
+__pycache__/
+.DS_Store
